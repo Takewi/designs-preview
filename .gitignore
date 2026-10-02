@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.local
+
+# Ignora todos os protótipos em designs/, preservando apenas a pasta via .gitkeep
+designs/*
+!designs/.gitkeep
+
