@@ -1,85 +1,80 @@
-# Design Previews Hub & Deploy Surge.sh
+# Design Previews Hub
 
-Sistema agnóstico e automatizado para disponibilizar e visualizar quaisquer protótipos de design HTML com suporte a modo tela cheia, seleção de viewport (Desktop, Laptop, Tablet, Mobile) e deploy em um comando via **Surge.sh**.
+Um projeto simples e direto para disponibilizar e visualizar previews de design HTML com suporte a modo tela cheia, simulação de dispositivos e deploy rápido no **Surge.sh**.
+
+> ℹ️ **Sobre a tela de login:** A autenticação na página inicial está ali mais para compor a interface e "preencher espaço" do que por segurança real, já que qualquer pessoa com o link direto do arquivo HTML (ex: `/designs/nome-do-arquivo.html`) consegue acessar o preview diretamente sem passar pelo login.
 
 ---
 
-## 🚀 Como Usar no Dia a Dia
+## 🚀 Como Usar
 
-### 1. Adicionar um novo design
+### 1. Adicionar seus designs
 Basta soltar qualquer arquivo `.html` dentro da pasta `designs/`:
 ```bash
 designs/
-├── infoklima-prototype.html
-├── infoklima-bmw-prototype.html
-└── seu-novo-prototipo.html
+├── dashboard-cliente.html
+├── tela-mobile.html
+└── landing-page.html
 ```
 
-O sistema extrai automaticamente o `<title>`, descrição, tags e tamanho do arquivo.
+O script lê automaticamente o `<title>`, tags detectadas e tamanho do arquivo para montar o catálogo.
 
 ---
 
-### 2. Testar Localmente
-Para visualizar o catálogo e testar seus designs localmente:
+### 2. Rodar Localmente
+Para visualizar os previews e testar no navegador:
 ```bash
 npm run dev
 ```
-- Acesse em seu navegador: [http://localhost:3000](http://localhost:3000)
-- O servidor possui **Live Watcher**: qualquer arquivo adicionado ou alterado em `designs/` atualiza o catálogo automaticamente.
+Acesse [http://localhost:3000](http://localhost:3000). O servidor atualiza o catálogo automaticamente ao adicionar ou alterar arquivos em `designs/`.
 
 ---
 
-### 3. Configurar Variáveis de Ambiente (.env)
-Copie o `.env.example` para `.env` (que é ignorado pelo Git):
+### 3. Configurar (.env)
+Copie o `.env.example` para `.env`:
 ```bash
 cp .env.example .env
 ```
 
-Configure suas preferências no `.env`:
+Defina sua senha e seu subdomínio do Surge:
 ```env
-# Senha de proteção compartilhada (opcional - deixe em branco para acesso livre)
-PREVIEW_PASSWORD=sua-senha-aqui
+# Senha para a tela de login (opcional - deixe vazio se não quiser login)
+PREVIEW_PASSWORD=sua-senha
 
-# Domínio personalizado do Surge para deploy
+# Subdomínio do Surge exclusivo deste projeto
 SURGE_DOMAIN=meu-projeto-previews.surge.sh
 ```
-- **Proteção por senha:** A senha é convertida em hash **SHA-256** no build e bloqueia a tela até o login.
-- **Domínio isolado:** Como o domínio fica no `.env`, cada clone do repositório pode ter seu próprio subdomínio independente sem conflitos.
 
 ---
 
 ### 4. Publicar no Surge.sh
-Para publicar ou atualizar o site público com todos os designs:
+Para compilar e colocar o site no ar:
 ```bash
 npm run deploy
 ```
 
-> **Primeira execução:** Se você ainda não estiver logado no Surge, ele pedirá seu email e senha interativamente no terminal.
-> O domínio será lido diretamente do seu `.env` (`SURGE_DOMAIN`).
-
-Para publicar em um domínio específico sem alterar o `.env`:
+Ou publique diretamente em outro subdomínio sem alterar o `.env`:
 ```bash
-npm run deploy -- outro-subdominio.surge.sh
+npm run deploy -- outro-dominio.surge.sh
 ```
 
 ---
 
-## 🖥️ Funcionalidades do Hub & Viewer
+## 🖥️ O que tem na interface
 
-- **Busca em Tempo Real:** Filtre instantaneamente por nome do protótipo, arquivo ou tag (ex: `BMW`, `IoT`, `Tailwind`).
-- **Modo Tela Cheia (Fullscreen API):** Pressione o botão **Tela Cheia** ou a tecla `F` no visualizador para que o design ocupe 100% do seu monitor sem barras do navegador.
-- **Emulador de Dispositivos:** Alterne entre os modos **100% Full**, **Laptop (1440px)**, **Tablet (768px)** e **Mobile (390px)** para testar a responsividade do protótipo.
-- **Acesso Direto / Isolado:** Cada card possui o botão **"Direto"** para abrir o arquivo HTML original em uma aba dedicada sem nenhuma interferência.
-- **Deep-linking (Links Compartilháveis):** Cada protótipo gera um link direto compartilhável via hash (ex: `https://seu-dominio.surge.sh/#/view/infoklima-bmw-prototype`), permitindo enviar links para clientes ou time que já abrem diretamente na tela do design.
-- **Barra de Ferramentas Retrátil:** A barra superior do viewer pode ser recolhida para não cobrir nenhum elemento da interface em teste.
+- **Catálogo com busca:** Filtro instantâneo por nome do protótipo, arquivo ou tecnologia.
+- **Visualizador responsivo:** Presets de resolução para **Desktop (100%)**, **Laptop (1440px)**, **Tablet (768px)** e **Mobile (390px)**.
+- **Tela Cheia:** Botão dedicado e atalho `F` para expandir o design ocupando 100% do monitor (Fullscreen API).
+- **Acesso direto:** Botão para abrir o arquivo HTML isolado em nova aba.
+- **Links diretos:** Roteamento por hash (ex: `/#/view/meu-design`) para compartilhar um preview específico.
 
 ---
 
-## 🛠️ Comandos Disponíveis
+## 🛠️ Comandos
 
-| Comando | Descrição |
+| Comando | O que faz |
 | :--- | :--- |
-| `npm run dev` | Inicia servidor HTTP local na porta 3000 com auto-rebuild |
-| `npm run build` | Varre `designs/`, extrai metadados e compila a pasta `dist/` |
-| `npm run deploy` | Compila os designs e publica no Surge.sh |
-| `npm test` | Executa a suíte de testes unitários automatizados |
+| `npm run dev` | Inicia servidor local na porta 3000 com live-reload |
+| `npm run build` | Varre `designs/` e compila os arquivos na pasta `dist/` |
+| `npm run deploy` | Executa o build e publica no Surge.sh |
+| `npm test` | Roda a suíte de testes unitários automatizados |
