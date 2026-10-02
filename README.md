@@ -29,14 +29,22 @@ npm run dev
 
 ---
 
-### 3. Configurar Senha de Acesso (.env)
-A senha de proteção fica salva no arquivo `.env` (ignorado pelo git):
-```env
-PREVIEW_PASSWORD=sua-senha-aqui
+### 3. Configurar Variáveis de Ambiente (.env)
+Copie o `.env.example` para `.env` (que é ignorado pelo Git):
+```bash
+cp .env.example .env
 ```
-- Durante o build, a senha é protegida com hash **SHA-256**.
-- Ao abrir o portal, o usuário deve informar a senha para desbloquear o catálogo e os previews.
-- Se deixar a variável em branco no `.env`, o portal funciona em modo aberto sem exigir autenticação.
+
+Configure suas preferências no `.env`:
+```env
+# Senha de proteção compartilhada (opcional - deixe em branco para acesso livre)
+PREVIEW_PASSWORD=sua-senha-aqui
+
+# Domínio personalizado do Surge para deploy
+SURGE_DOMAIN=meu-projeto-previews.surge.sh
+```
+- **Proteção por senha:** A senha é convertida em hash **SHA-256** no build e bloqueia a tela até o login.
+- **Domínio isolado:** Como o domínio fica no `.env`, cada clone do repositório pode ter seu próprio subdomínio independente sem conflitos.
 
 ---
 
@@ -47,11 +55,11 @@ npm run deploy
 ```
 
 > **Primeira execução:** Se você ainda não estiver logado no Surge, ele pedirá seu email e senha interativamente no terminal.
-> O domínio configurado fica salvo no arquivo [`surge.json`](./surge.json) (ex: `ui-previews.surge.sh`), podendo ser alterado a qualquer momento.
+> O domínio será lido diretamente do seu `.env` (`SURGE_DOMAIN`).
 
-Para publicar em um domínio específico diretamente:
+Para publicar em um domínio específico sem alterar o `.env`:
 ```bash
-npm run deploy -- meu-subdominio-especifico.surge.sh
+npm run deploy -- outro-subdominio.surge.sh
 ```
 
 ---

@@ -45,15 +45,18 @@ async function main() {
     }
   }
 
-  // Permite passar domínio via linha de comando: npm run deploy -- meu-dominio.surge.sh
+  // Prioridade de domínio:
+  // 1. Linha de comando (ex: npm run deploy -- meu-site.surge.sh)
+  // 2. Variável SURGE_DOMAIN no .env
+  // 3. surge.json (fallback legado)
   const cliDomain = process.argv.slice(2).find(arg => !arg.startsWith('-'));
-  let domain = cliDomain || surgeConfig.domain;
+  let domain = cliDomain || (process.env.SURGE_DOMAIN || '').trim() || surgeConfig.domain;
 
   if (!domain) {
-    // Sugere nome padrão
-    const defaultDomain = 'ui-previews.surge.sh';
-    console.log(`\nNenhum domínio configurado em surge.json.`);
-    const input = await prompt(`Qual domínio deseja usar no Surge? [Padrão: ${defaultDomain}]: `);
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    const defaultDomain = `previews-${randomSuffix}.surge.sh`;
+    console.log(`\nNenhum domínio configurado no .env ou via comando.`);
+    const input = await prompt(`Qual subdomínio deseja usar no Surge? [Padrão: ${defaultDomain}]: `);
     domain = input || defaultDomain;
 
     // Garante sufixo .surge.sh caso o usuário tenha digitado apenas o nome
@@ -61,9 +64,16 @@ async function main() {
       domain = `${domain}.surge.sh`;
     }
 
-    surgeConfig.domain = domain;
-    fs.writeFileSync(configPath, JSON.stringify(surgeConfig, null, 2), 'utf8');
-    console.log(`💾 Domínio salvo em surge.json: ${domain}\n`);
+    // Salva no .env local (que é ignorado pelo git)
+    const envPath = path.join(rootDir, '.env');
+    let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+    if (envContent.includes('SURGE_DOMAIN=')) {
+      envContent = envContent.replace(/SURGE_DOMAIN=.*$/m, `SURGE_DOMAIN=${domain}`);
+    } else {
+      envContent += `\n# Domínio do Surge para deploy\nSURGE_DOMAIN=${domain}\n`;
+    }
+    fs.writeFileSync(envPath, envContent, 'utf8');
+    console.log(`💾 Domínio salvo no seu .env local: ${domain}\n`);
 
     // Atualiza CNAME no dist
     fs.writeFileSync(path.join(distDir, 'CNAME'), domain, 'utf8');

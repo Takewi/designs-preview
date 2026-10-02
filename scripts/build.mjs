@@ -204,16 +204,24 @@ export function buildCatalog() {
   const jsonPath = path.join(distDir, 'previews.json');
   fs.writeFileSync(jsonPath, JSON.stringify(previews, null, 2), 'utf8');
 
-  // Configura CNAME se surge.json tiver domain
-  if (fs.existsSync(surgeConfigPath)) {
+  // Configura CNAME se SURGE_DOMAIN (.env) ou surge.json tiver domain
+  let domain = (process.env.SURGE_DOMAIN || '').trim();
+  if (!domain && fs.existsSync(surgeConfigPath)) {
     try {
       const surgeConfig = JSON.parse(fs.readFileSync(surgeConfigPath, 'utf8'));
       if (surgeConfig.domain) {
-        fs.writeFileSync(path.join(distDir, 'CNAME'), surgeConfig.domain.trim(), 'utf8');
+        domain = surgeConfig.domain.trim();
       }
     } catch {
-      // Ignora erro de JSON malformado
+      // Ignora erro
     }
+  }
+
+  const cnamePath = path.join(distDir, 'CNAME');
+  if (domain) {
+    fs.writeFileSync(cnamePath, domain, 'utf8');
+  } else if (fs.existsSync(cnamePath)) {
+    fs.unlinkSync(cnamePath);
   }
 
   console.log(`\n✅ Build concluído com sucesso em: ${distDir}`);
